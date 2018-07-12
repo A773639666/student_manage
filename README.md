@@ -1,1 +1,1 @@
-# student_manage
+# 这是一个学生后台管理系统
