@@ -1,28 +1,27 @@
-//导入
+//导入express
 const express = require('express')
 const path = require('path')
 
 //创建路由对象
+// http://www.expressjs.com.cn/4x/api.html#router
 const accountRouter = express.Router()
 
-//导入accountControl控制器
-const accountCtrl = require(path.join(__dirname,"../controllers/accountController.js"))
+const accountCTRL = require(path.join(__dirname,"../controllers/accountController.js"))
 
-//接收到请求，然后交给与我们这个路由对应的控制器处理
-//处理浏览器想要登录页面
-accountRouter.get('/login',accountCtrl.getLoginPage)
+//当浏览器发送了 http://127.0.0.1:3000/account/login 交给对应的控制器 accountCTRL 的 getLoginPage 方法处理
+accountRouter.get('/login',accountCTRL.getLoginPage)
 
-//处理浏览器想要图片验证码
-accountRouter.get('/vcode',accountCtrl.getVcodeImage)
+//获取图片验证码
+accountRouter.get('/vcode',accountCTRL.getImageVcode)
 
-//处理浏览器想要注册页面
-accountRouter.get('/register',accountCtrl.getRegisterPage)
+//获取注册页面
+accountRouter.get('/register',accountCTRL.getRegisterPage)
 
-//处理浏览器注册用户的请求
-accountRouter.post('/register',accountCtrl.register)
+//处理注册请求
+accountRouter.post('/register',accountCTRL.register)
 
-//处理浏览器用户的登录请求
-accountRouter.post('/login',accountCtrl.login)
+//处理登录请求
+accountRouter.post('/login',accountCTRL.login)
 
-//导出
+//导出路由模块(路由中间件)
 module.exports = accountRouter

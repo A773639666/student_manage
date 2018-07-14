@@ -1,23 +1,39 @@
-const MongoClient = require('mongodb').MongoClient
+const xtpl = require('xtpl')
+const path = require('path')
+const databasetool = require(path.join(__dirname,"../tools/databasetool.js"))
+/**
+ * 暴露出去，查询学生列表的方法
+ */
+exports.getStudentListPage = (req,res) => {
+    //1.获取到关键字的值
+    const keyword = req.query.keyword || ""
+    
+    //2.调用databasetool.js的方法
+    databasetool.findList('studentInfo',{name:{$regex:keyword}},(err,docs)=>{
+        xtpl.renderFile(path.join(__dirname,"../views/list.html"),{studentList:docs,keyword},(err,content)=>{
+            res.send(content)
+        })
+    })
+}
 
-// Connection URL
-const url = 'mongodb://localhost:27017';
+/**
+ * 暴露出去，获取新增页面的方法
+ */
+exports.getAddStudentPage = (req,res) =>{
+    xtpl.renderFile(path.join(__dirname,"../views/add.html"),{},(err,content)=>{
+        res.send(content)
+    })
+}
 
-// Database Name
-const dbName = 'szqdhm18';
-
-//导出返回学生列表的页面
-exports.getStudentListPage = (req, res) => {
-    MongoClient.connect(url, function (err, client) {
-        const db = client.db(dbName);
-
-        const collection = db.collection('studentInfo');
-
-        // Find some documents
-        collection.find({}).toArray(function (err, docs) {
-            console.log(docs)
-        });
-
-        client.close();
-    });
+/**
+ * 暴露出去，获取新增学生方法
+ */
+exports.addStudent = (req,res) => {
+    databasetool.insertOne('studentInfo',req.body,(err,result)=>{
+        if(result == null) {//失败
+            res.send('<script>alert("插入失败")</script>')
+        }else {
+            res.send('<script>location.href = "/studentmanager/list"</script>')
+        }
+    })
 }

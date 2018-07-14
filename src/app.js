@@ -1,32 +1,33 @@
-//导入
+//1.0 导入express
 const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
 const session = require('express-session')
 
-//create app
+//2.0 创建app
 const app = express()
+
+//node中处理静态资源
+app.use(express.static(path.join(__dirname,"statics")))
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
-// Use the session middleware
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 10*60000 }}))
+// parse application/json
+app.use(bodyParser.json())
 
-//设置内置中间件，对我们的静态资源进行处理
-app.use(express.static(path.join(__dirname,"statics")))
+app.use(session({ secret: 'keyboard cat',resave:true,saveUninitialized:true, cookie: { maxAge: 10 * 60000 }}))
 
-//在app.js对浏览器的请求分开处理
-const accountRouter = require(path.join(__dirname,'./routers/accountRouter.js'))
+//3.0 集成路由中间件【路由中间件写在所有中间件的后面】
+const accountRouter = require(path.join(__dirname,"./routers/accountRouter.js"))
+const studentManagerRouter = require(path.join(__dirname,"./routers/studentManagerRouter.js"))
 app.use('/account',accountRouter)
-
-const studentManagerRouter = require(path.join(__dirname,'./routers/studentManagerRouter.js'))
 app.use('/studentmanager',studentManagerRouter)
 
-//启动
+//4.0 开启
 app.listen(3000,'127.0.0.1',err=>{
     if(err){
         console.log(err)
     }
 
-    console.log("start OK")
+    console.log('start OK')
 })
