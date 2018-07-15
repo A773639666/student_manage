@@ -1,11 +1,25 @@
 const MongoClient = require('mongodb').MongoClient;
-
+const ObjectId = require('mongodb').ObjectId
+exports.ObjectId = ObjectId
 // Connection URL
 const url = 'mongodb://localhost:27017';
  
 // Database Name
 const dbName = 'szhmqd18';
 
+/**
+ * 这是抽取出来的方法,用来获取集合
+ */
+const getCollection = (collectionName,callback) =>{
+    //1.连接
+    MongoClient.connect(url,{useNewUrlParser:true},function (err,client) {  
+        const db = client.db(dbName)
+        //获取集合,进行操作
+        const collection = db.collection(collectionName)
+        //通过回调
+        callback(client,collection)
+    })
+}
 /**
  * 这个模块是承上启下的，它里面暴露给控制器调用的方法，应该是通用
  */
@@ -82,5 +96,40 @@ exports.insertOne = (collectionName,params,callback) => {
             //通过回调，把结果传递给调用它的控制器
             callback(err,docs)
         })
+     })
+ }
+ /**
+  * 暴露出去的一个通用的更改一条文档的方法,这个方法是给所有控制器用的
+  * 
+  * 参数1:要操作的集合名称
+  * 参数2：要操作的数据
+  * 参数3：回调函数，通过回调函数，把操作数据库的结果(成功或是失败)传递给调用它的控制器
+  */
+ exports.updateOne = (collectionName,condition,params,callback) =>{
+     //获取大哦要操作的集合
+     getCollection(collectionName,(client,collection)=>{
+         //修改
+         collection.updateOne(condition,{$set:params},(err,result)=>{
+             client.close()
+             //通过回调,将要返回的结果传给控制器
+             callback(err,result)
+         })
+     })
+ }
+ /**
+  * 暴露出去的一个通用的删除一条文档的方法,这个方法是给所有控制器用的
+  * 
+  * 参数1:要操作的集合名称
+  * 参数2：要操作的数据
+  * 参数3：回调函数，通过回调函数，把操作数据库的结果(成功或是失败)传递给调用它的控制器
+  */
+ exports.deleteOne = (collectionName,params,callback)=>{
+     //获取要操作的集合
+     getCollection(collectionName,(client,collection)=>{
+         //修改
+         collection.deleteOne(params,(err,result)=>{
+             //通过回调,将删除后的结果返回给调用它的控制器
+             callback(err,result)
+         })
      })
  }
